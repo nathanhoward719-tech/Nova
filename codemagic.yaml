@@ -1,0 +1,17 @@
+workflows:
+  nova:
+    name: NOVA
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      xcode: latest
+    scripts:
+      - name: Generate project
+        script: brew install xcodegen && xcodegen
+      - name: Build unsigned IPA
+        script: |
+          xcodebuild -project NOVA.xcodeproj -scheme NOVA -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          mkdir Payload && cp -R build/Build/Products/Release-iphoneos/NOVA.app Payload/
+          zip -qr NOVA.ipa Payload
+    artifacts:
+      - NOVA.ipa
